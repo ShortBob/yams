@@ -118,3 +118,15 @@ print(counter_2((1, 1, 1, 1, 1)))
 
 print(YamsCounter.score_names())
 
+
+#
+
+class CounterMeta(type):
+
+    def __call__(cls, *args, **kwargs):
+        return super(CounterMeta, cls).__call__(*args, **kwargs)
+
+
+class YamsCounterWithMeta(metaclass=CounterMeta):
+
+    pass

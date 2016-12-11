@@ -4,9 +4,9 @@ __author__ = 'vfarcette'
 
 
 import pytest
-from yams.objects.yams_error import YamsError
-from yams.objects.dice import Hand
-from yams.objects.hand_values import _to_values,  check_hand
+from objects.yams_error import YamsError
+from objects.dice import Hand
+from objects.hand_values import _to_values,  check_hand
 
 
 def test_to_values_accept_hand():

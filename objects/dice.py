@@ -4,7 +4,7 @@ __author__ = 'vfarcette'
 
 from random import randint
 from collections import OrderedDict
-from yams.objects.yams_error import YamsError
+from objects.yams_error import YamsError
 
 
 class DiceError(YamsError):

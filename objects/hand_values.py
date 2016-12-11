@@ -4,9 +4,9 @@ __author__ = 'vfarcette'
 
 from functools import wraps
 from collections import OrderedDict, Counter
-from yams.objects.yams_error import YamsError
-from yams.objects.dice import Hand
-from yams.tools.singleton_meta import Singleton
+from objects.yams_error import YamsError
+from objects.dice import Hand
+from tools.singleton_meta import Singleton
 
 
 class YamsCounter(object, metaclass=Singleton):

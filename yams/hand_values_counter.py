@@ -11,7 +11,7 @@ from yams.dice import Hand
 from yams.yams_error import YamsError
 
 
-ScoreLineChecker = namedtuple('ScoreLineChecker', ('name', 'num_param', 'definition'))
+ScoreLineChecker = namedtuple('ScoreLineChecker', ('name', 'definition'))
 
 
 class YamsCounter(object, metaclass=Singleton):
@@ -21,66 +21,54 @@ class YamsCounter(object, metaclass=Singleton):
     __SCORE_DEF = (
         ScoreLineChecker(
             'As',
-            1,
-            lambda ch: sum((v * c if v == 1 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c if v == 1 else 0 for v, c in ch))
         ),
         ScoreLineChecker(
             'Deux',
-            1,
-            lambda ch: sum((v * c if v == 2 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c if v == 2 else 0 for v, c in ch))
         ),
         ScoreLineChecker(
             'Trois',
-            1,
-            lambda ch: sum((v * c if v == 3 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c if v == 3 else 0 for v, c in ch))
         ),
         ScoreLineChecker(
             'Quatre',
-            1,
-            lambda ch: sum((v * c if v == 4 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c if v == 4 else 0 for v, c in ch))
         ),
         ScoreLineChecker(
             'Cinq',
-            1,
-            lambda ch: sum((v * c if v == 5 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c if v == 5 else 0 for v, c in ch))
         ),
         ScoreLineChecker(
             'Six',
-            1,
-            lambda ch: sum((v * c if v == 6 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c if v == 6 else 0 for v, c in ch))
         ),
         ScoreLineChecker(
             'Mini',
-            2,
             lambda ch, ss: sum((v * c for v, c in ch)) if
             (ss.Maxi == 0 or ss.Maxi > sum((v * c for v, c in ch))) else 0
         ),
         ScoreLineChecker(
             'Maxi',
-            2,
             lambda ch, ss: sum((v * c for v, c in ch)) if (ss.Mini < sum((v * c for v, c in ch))) else 0
         ),
         ScoreLineChecker(
             'DoublePaire',
-            1,
-            lambda ch: 10
+            lambda ch, _: 10
             if len(ch) == 1 or len(ch) == 2 or (
                 len(ch) == 3 and sorted(Counter((c for v, c in ch)).most_common())[-1][1] == 2) else 0
         ),
         ScoreLineChecker(
             'Full',
-            1,
-            lambda ch: 20 if len(ch) == 1 or (len(ch) == 2 and (ch[0][1] == 2 or ch[0][1] == 3)) else 0
+            lambda ch, _: 20 if len(ch) == 1 or (len(ch) == 2 and (ch[0][1] == 2 or ch[0][1] == 3)) else 0
         ),
         ScoreLineChecker(
             'Carre',
-            1,
-            lambda ch: 40 if ch[0][1] >= 4 else 0
+            lambda ch, _: 40 if ch[0][1] >= 4 else 0
         ),
         ScoreLineChecker(
             'Suite',
-            1,
-            lambda ch: 40
+            lambda ch, _: 40
             if len(ch) == 5 and (
                 (ch[0][0] == 1 and ch[4][0] == 5)
                 or
@@ -88,13 +76,11 @@ class YamsCounter(object, metaclass=Singleton):
         ),
         ScoreLineChecker(
             'Yams',
-            1,
-            lambda ch: 50 if len(ch) == 1 else 0
+            lambda ch, _: 50 if len(ch) == 1 else 0
         ),
         ScoreLineChecker(
             'MoinsDe11',
-            1,
-            lambda ch: max(0, 20 + (5 * (11 - sum((v * c for v, c in ch)))))
+            lambda ch, _: max(0, 20 + (5 * (11 - sum((v * c for v, c in ch)))))
         ),
     )
 
@@ -124,26 +110,11 @@ class YamsCounter(object, metaclass=Singleton):
             score_line_checker = self.__class__.__SCORE_DEF_DICT[attr]
             check_func = score_line_checker.definition
 
-            if score_line_checker.num_param == 1:
-
-                @wraps(score_line_checker)
-                def wrapper(hand_n_score_wrapper):
-                    (hand, *_) = hand_n_score_wrapper
-                    return check_func(self.__class__._to_values(hand))
-
-            elif score_line_checker.num_param == 2:
-
-                @wraps(score_line_checker)
-                def wrapper(hand_n_score_wrapper):
-                    (hand, *opt_score_sheet) = hand_n_score_wrapper
-                    values = self.__class__._to_values(hand)
-                    return check_func(values, *opt_score_sheet)
-
-            else:
-                raise NotImplementedError('All {} must define 1 or 2 params in one of {}.'.format(
-                    ScoreLineChecker.__name__,
-                    ScoreLineChecker._fields,
-                ))
+            @wraps(score_line_checker)
+            def wrapper(hand_n_score_wrapper):
+                (hand, *opt_score_sheet) = hand_n_score_wrapper
+                values = self.__class__._to_values(hand)
+                return check_func(values, *opt_score_sheet)
 
             self.__class__.__CACHED_SCORE_DEF[attr] = wrapper
 

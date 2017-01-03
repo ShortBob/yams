@@ -4,7 +4,7 @@ __author__ = 'vfarcette'
 
 
 import pytest
-from objects.dice import Dice, DiceError, Hand, HandError
+from yams.dice import Dice, DiceError, Hand, HandError
 
 # Dice object tests
 

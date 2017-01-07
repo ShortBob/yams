@@ -1,10 +1,11 @@
 # -*- encoding:utf-8 -*-
 
+__author__ = 'vfarcette'
+
+
 from collections import OrderedDict
 from yams.dice import Dice
 from yams.yams_error import YamsError
-
-__author__ = 'vfarcette'
 
 
 class HandError(YamsError):

@@ -16,32 +16,33 @@ ScoreLineChecker = namedtuple('ScoreLineChecker', ('name', 'definition'))
 
 class YamsCounter(object, metaclass=Singleton):
 
+
     __INITIALIZED = False
 
     __SCORE_DEF = (
         ScoreLineChecker(
             'As',
-            lambda ch, _: sum((v * c if v == 1 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c for v, c in ch if v == 1))
         ),
         ScoreLineChecker(
             'Deux',
-            lambda ch, _: sum((v * c if v == 2 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c for v, c in ch if v == 2))
         ),
         ScoreLineChecker(
             'Trois',
-            lambda ch, _: sum((v * c if v == 3 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c for v, c in ch if v == 3))
         ),
         ScoreLineChecker(
             'Quatre',
-            lambda ch, _: sum((v * c if v == 4 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c for v, c in ch if v == 4))
         ),
         ScoreLineChecker(
             'Cinq',
-            lambda ch, _: sum((v * c if v == 5 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c for v, c in ch if v == 5))
         ),
         ScoreLineChecker(
             'Six',
-            lambda ch, _: sum((v * c if v == 6 else 0 for v, c in ch))
+            lambda ch, _: sum((v * c for v, c in ch if v == 6))
         ),
         ScoreLineChecker(
             'Mini',
@@ -91,18 +92,30 @@ class YamsCounter(object, metaclass=Singleton):
     __CACHED_SCORE_DEF = OrderedDict()
 
     def __new__(cls):
+        """
+        Initialize cls.__SCORE_DEF_DICT and cls.__SCORE_NAMES.
+        """
         for score_line_checker in cls.__SCORE_DEF:
             cls.__SCORE_NAMES.append(score_line_checker.name)
             cls.__SCORE_DEF_DICT[score_line_checker.name] = score_line_checker
         return super().__new__(cls)
 
     def __init__(self):
+        """
+        Trigger call of self.__getattr for every self.__class__.__SCORE_NAMES
+        :return: Initialized instance of YamsCounter
+        """
         if not self.__class__.__INITIALIZED:
-            for score in self.__class__.__SCORE_DEF_DICT.keys():
+            for score in self.__class__.__SCORE_NAMES:
                 _ = self.__getattr__(score)
             self.__class__.__INITIALIZED = True
 
     def __getattr__(self, attr):
+        """
+        Provides the function able to check an Hand and ScoreSheet wrapper against the given score definition.
+        :param attr: Score def as in self.__class__.__SCORE_NAMES (ex: Yams, Carre, Suite, etc.)
+        :return: Callable
+        """
         if self.__class__.__INITIALIZED:
             raise NotImplementedError('Internal objects are not made for direct access after initialisation.')
 
@@ -112,26 +125,42 @@ class YamsCounter(object, metaclass=Singleton):
 
             @wraps(score_line_checker)
             def wrapper(hand_n_score_wrapper):
-                (hand, *opt_score_sheet) = hand_n_score_wrapper
+                hand, opt_score_sheet = hand_n_score_wrapper
                 values = self.__class__._to_values(hand)
-                return check_func(values, *opt_score_sheet)
+                return check_func(values, opt_score_sheet)
 
             self.__class__.__CACHED_SCORE_DEF[attr] = wrapper
 
         return self.__class__.__CACHED_SCORE_DEF[attr]
 
     def __call__(self, hand_n_score_wrapper):
+        """
+        Returns an OrderedDict with self.__class__.__SCORE_NAMES as keys and result of the check of the given Hand
+        and ScoreSheet wrapper (two items Iterable) as values.
+        :param hand_n_score_wrapper:
+        :return:
+        """
         score = OrderedDict()
-        for hand, result in self.__class__.__CACHED_SCORE_DEF.items():
-            score[hand] = result(hand_n_score_wrapper)
+        for score_name, score_check_function in self.__class__.__CACHED_SCORE_DEF.items():
+            score[score_name] = score_check_function(hand_n_score_wrapper)
         return score
 
     @classmethod
     def score_names(cls):
+        """
+        Give the tuple of score names (Yams, Suite, MoinsDe11, etc.)
+        :return: tuple of str.
+        """
         return tuple((name for name in cls.__SCORE_NAMES))
 
     @classmethod
     def _to_values(cls, hand):
+        """
+        Check Hand and return a Counter.most_common build with.
+        For instance, with (1, 2, 5, 5, 3), returns ((1, 1), (2, 1), (3, 1), (5, 2)).
+        :param hand: Hand object or list or tuple of int as 1 <= value <= 6
+        :return: Occurrence tuple made of two items tuple ((value1, count1), (value2, count2), ...)
+        """
         if isinstance(hand, Hand):
             hand = hand.values()
         elif isinstance(hand, (list, tuple)) and\

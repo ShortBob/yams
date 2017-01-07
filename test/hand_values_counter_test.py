@@ -27,6 +27,14 @@ def hand_sheet():
     return Hand(), _ScoreSheet()
 
 
+# Programming tests
+
+def test_singleton_behaviour():
+    y1 = YamsCounter()
+    y2 = YamsCounter()
+    assert id(y1) == id(y2), 'All YamsCounter instance should be the same.'
+
+
 # Behavior tests
 
 def test_access_to_attributes_raises(yams_counter):

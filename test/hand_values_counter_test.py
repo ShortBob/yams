@@ -1,11 +1,11 @@
 # -*- encoding:utf-8 -*-
+from yams.hand import Hand
 
 __author__ = 'vfarcette'
 
 
 import pytest
 from yams.yams_error import YamsError
-from yams.dice import Hand
 from yams.hand_values_counter import YamsCounter
 
 

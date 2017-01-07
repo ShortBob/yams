@@ -1,4 +1,5 @@
 # -*- encoding:utf-8 -*-
+from yams.hand import Hand
 
 __author__ = 'vfarcette'
 
@@ -7,7 +8,6 @@ from collections import OrderedDict, Counter, namedtuple
 
 from tools.singleton_meta import Singleton
 
-from yams.dice import Hand
 from yams.yams_error import YamsError
 
 

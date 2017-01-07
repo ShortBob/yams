@@ -15,7 +15,6 @@ ScoreLineChecker = namedtuple('ScoreLineChecker', ('name', 'definition'))
 
 class YamsCounter(object, metaclass=Singleton):
 
-
     __INITIALIZED = False
 
     __SCORE_DEF = (

@@ -37,12 +37,6 @@ def test_singleton_behaviour():
 
 # Behavior tests
 
-def test_access_to_attributes_raises(yams_counter):
-    with pytest.raises(NotImplementedError):
-        _ = yams_counter.Yams
-    with pytest.raises(NotImplementedError):
-        _ = yams_counter.undefined
-
 def test_call_allowed(yams_counter, hand_sheet):
     yams_counter(hand_sheet)
 

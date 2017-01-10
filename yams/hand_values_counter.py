@@ -50,10 +50,7 @@ class YamsCounter(object, metaclass=Singleton):
         :param attr: Score def as in self.__class__.__SCORE_NAMES (ex: Yams, Carre, Suite, etc.)
         :return: Callable
         """
-        if self.__class__.__INITIALIZED:
-            raise NotImplementedError('Internal objects are not made for direct access after initialisation.')
-
-        if attr not in self.__class__.__CACHED_SCORE_DEF.keys():
+        if not self.__class__.__INITIALIZED:
             check_func = self.__class__.__CHECK_HAND_DEF_DICT[attr]
 
             @wraps(check_func)

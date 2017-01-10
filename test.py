@@ -17,13 +17,35 @@ class GetAttr(object):
         return super().__setattr__(key, value)
 
 
-if __name__ == '__main__':
-    g = GetAttr()
-    print(g.un)
-    g.un = 'UN'
+class My0Int(object):
 
-    def decorateur(func):
-        # @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        return wrapper
+    def __int__(self):
+        return 0
+
+    @staticmethod
+    def __check_other_operand_type(other):
+        if not isinstance(other, (int, float)):
+            raise ValueError('operand {} have to be int or float'.format(other))
+
+    def __add__(self, other):
+        self.__class__.__check_other_operand_type(other)
+        return other
+
+    def __radd__(self, other):
+        self.__check_other_operand_type(other)
+        return other
+
+if __name__ == '__main__':
+    # g = GetAttr()
+    # print(g.un)
+    # g.un = 'UN'
+    #
+    # def decorateur(func):
+    #     # @wraps(func)
+    #     def wrapper(*args, **kwargs):
+    #         return func(*args, **kwargs)
+    #     return wrapper
+
+    my0 = My0Int()
+    print(my0 + 1)
+    print(1 + my0)

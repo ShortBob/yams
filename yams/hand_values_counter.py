@@ -6,6 +6,7 @@ __author__ = 'vfarcette'
 from functools import wraps
 from collections import OrderedDict, Counter, namedtuple
 from tools.singleton_meta import Singleton
+from yams.definition import SCORE_SHEET_DEF, TARGET_YAMS_COUNTER
 from yams.hand import Hand
 from yams.yams_error import YamsError
 
@@ -17,73 +18,7 @@ class YamsCounter(object, metaclass=Singleton):
 
     __INITIALIZED = False
 
-    __SCORE_DEF = (
-        ScoreLineChecker(
-            'As',
-            lambda ch, _: sum((v * c for v, c in ch if v == 1))
-        ),
-        ScoreLineChecker(
-            'Deux',
-            lambda ch, _: sum((v * c for v, c in ch if v == 2))
-        ),
-        ScoreLineChecker(
-            'Trois',
-            lambda ch, _: sum((v * c for v, c in ch if v == 3))
-        ),
-        ScoreLineChecker(
-            'Quatre',
-            lambda ch, _: sum((v * c for v, c in ch if v == 4))
-        ),
-        ScoreLineChecker(
-            'Cinq',
-            lambda ch, _: sum((v * c for v, c in ch if v == 5))
-        ),
-        ScoreLineChecker(
-            'Six',
-            lambda ch, _: sum((v * c for v, c in ch if v == 6))
-        ),
-        ScoreLineChecker(
-            'Mini',
-            lambda ch, ss: sum((v * c for v, c in ch)) if
-            (ss.Maxi == 0 or ss.Maxi > sum((v * c for v, c in ch))) else 0
-        ),
-        ScoreLineChecker(
-            'Maxi',
-            lambda ch, ss: sum((v * c for v, c in ch)) if (ss.Mini < sum((v * c for v, c in ch))) else 0
-        ),
-        ScoreLineChecker(
-            'DoublePaire',
-            lambda ch, _: 10
-            if len(ch) == 1 or len(ch) == 2 or (
-                len(ch) == 3 and sorted(Counter((c for v, c in ch)).most_common())[-1][1] == 2) else 0
-        ),
-        ScoreLineChecker(
-            'Full',
-            lambda ch, _: 20 if len(ch) == 1 or (len(ch) == 2 and (ch[0][1] == 2 or ch[0][1] == 3)) else 0
-        ),
-        ScoreLineChecker(
-            'Carre',
-            lambda ch, _: 40 if ch[0][1] >= 4 else 0
-        ),
-        ScoreLineChecker(
-            'Suite',
-            lambda ch, _: 40
-            if len(ch) == 5 and (
-                (ch[0][0] == 1 and ch[4][0] == 5)
-                or
-                (ch[0][0] == 2 and ch[4][0] == 6)) else 0
-        ),
-        ScoreLineChecker(
-            'Yams',
-            lambda ch, _: 50 if len(ch) == 1 else 0
-        ),
-        ScoreLineChecker(
-            'MoinsDe11',
-            lambda ch, _: max(0, 20 + (5 * (11 - sum((v * c for v, c in ch)))))
-        ),
-    )
-
-    __SCORE_DEF_DICT = OrderedDict()
+    __CHECK_HAND_DEF_DICT = OrderedDict()
 
     __SCORE_NAMES = []
 
@@ -91,11 +26,12 @@ class YamsCounter(object, metaclass=Singleton):
 
     def __new__(cls):
         """
-        Initialize cls.__SCORE_DEF_DICT and cls.__SCORE_NAMES.
+        Initialize cls.__CHECK_HAND_DEF_DICT and cls.__SCORE_NAMES.
         """
-        for score_line_checker in cls.__SCORE_DEF:
+        kept_line_def = (line for line in SCORE_SHEET_DEF if line.target == TARGET_YAMS_COUNTER)
+        for score_line_checker in kept_line_def:
             cls.__SCORE_NAMES.append(score_line_checker.name)
-            cls.__SCORE_DEF_DICT[score_line_checker.name] = score_line_checker
+            cls.__CHECK_HAND_DEF_DICT[score_line_checker.name] = score_line_checker.definition
         return super().__new__(cls)
 
     def __init__(self):
@@ -118,10 +54,9 @@ class YamsCounter(object, metaclass=Singleton):
             raise NotImplementedError('Internal objects are not made for direct access after initialisation.')
 
         if attr not in self.__class__.__CACHED_SCORE_DEF.keys():
-            score_line_checker = self.__class__.__SCORE_DEF_DICT[attr]
-            check_func = score_line_checker.definition
+            check_func = self.__class__.__CHECK_HAND_DEF_DICT[attr]
 
-            @wraps(score_line_checker)
+            @wraps(check_func)
             def wrapper(hand_n_score_wrapper):
                 hand, opt_score_sheet = hand_n_score_wrapper
                 values = self.__class__._to_values(hand)

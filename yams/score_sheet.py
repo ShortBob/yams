@@ -4,7 +4,8 @@ __author__ = 'vfarcette'
 
 
 from collections import OrderedDict
-from yams.definition import SCORE_SHEET_DEF
+from tools.singleton_meta import Singleton
+from yams.definition import SCORE_SHEET_DEF, TARGET_SCORE_COLUMN
 from yams.hand_values_counter import YamsCounter
 
 
@@ -39,7 +40,19 @@ class ScoreColumnUsage(object):
     pass
 
 
-class ScoreColumn(object):
+class ScoreColumn(object, metaclass=Singleton):
+
+    __INITIALIZED = False
+
+    __CHECK_LINES_DEF_DICT = OrderedDict()
+
+    __LINE_NAMES = []
+
+    __CACHED_LINES_DEF = OrderedDict()
+
+    def __new__(cls, col_usage: ScoreColumnUsage):
+        kept_line_def = (line for line in SCORE_SHEET_DEF if line.target == TARGET_SCORE_COLUMN)
+        return super().__new__(cls)
 
     def __init__(self, col_usage: ScoreColumnUsage):
         self._value_score = OrderedDict()

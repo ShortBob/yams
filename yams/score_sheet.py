@@ -52,6 +52,7 @@ class ScoreColumn(object, metaclass=Singleton):
 
     def __new__(cls, col_usage: ScoreColumnUsage):
         kept_line_def = (line for line in SCORE_SHEET_DEF if line.target == TARGET_SCORE_COLUMN)
+
         return super().__new__(cls)
 
     def __init__(self, col_usage: ScoreColumnUsage):

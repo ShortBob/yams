@@ -28,7 +28,7 @@ class YamsCounter(object, metaclass=Singleton):
         """
         Initialize cls.__CHECK_HAND_DEF_DICT and cls.__SCORE_NAMES.
         """
-        kept_line_def = (line for line in SCORE_SHEET_DEF if line.target == TARGET_YAMS_COUNTER)
+        kept_line_def = (line for line in SCORE_SHEET_DEF if TARGET_YAMS_COUNTER in line.target)
         for score_line_checker in kept_line_def:
             cls.__SCORE_NAMES.append(score_line_checker.name)
             cls.__CHECK_HAND_DEF_DICT[score_line_checker.name] = score_line_checker.definition

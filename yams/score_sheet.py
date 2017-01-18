@@ -51,7 +51,11 @@ class ScoreColumn(object, metaclass=Singleton):
     __CACHED_LINES_DEF = OrderedDict()
 
     def __new__(cls, col_usage: ScoreColumnUsage):
-        kept_line_def = (line for line in SCORE_SHEET_DEF if line.target == TARGET_SCORE_COLUMN)
+        kept_line_def = (line for line in SCORE_SHEET_DEF if TARGET_SCORE_COLUMN in line.target)
+        for score_line_checker in kept_line_def:
+            cls.__LINE_NAMES.append(score_line_checker.name)
+            cls.__CHECK_LINES_DEF_DICT[score_line_checker.name] =
+
 
         return super().__new__(cls)
 
